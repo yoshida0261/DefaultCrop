@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Button
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -48,7 +49,8 @@ class MainActivity : AppCompatActivity() {
         )
 
         if (Build.VERSION.SDK_INT > 23) {
-            uri = FileProvider.getUriForFile(this,"com.example.homefolder.example.provider", file!!);
+            uri =
+                FileProvider.getUriForFile(this, "com.example.homefolder.example.provider", file!!);
         } else {
             uri = Uri.fromFile(file);
         }
@@ -77,18 +79,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_TAKE_IMAGE && resultCode == RESULT_OK) {
-            cropImage()
-        } else if (requestCode == REQUEST_CODE_CHOOSE_IMAGE && resultCode == RESULT_OK) {
-            if (data != null) {
-                uri = data.data
-                cropImage()
-            }
-        } else if (requestCode == REQUEST_CODE_CROP_AVATAR && resultCode == RESULT_OK) {
-            if (data != null) {
-                val bundle = data.extras
-                val bitmap = bundle!!.getParcelable<Bitmap>("data")
-                // ivAvatar.setImageBitmap(bitmap)
+        if (resultCode == RESULT_OK) {
+            when (requestCode) {
+                REQUEST_CODE_TAKE_IMAGE -> {
+                    cropImage()
+                }
+                REQUEST_CODE_CHOOSE_IMAGE -> {
+                    if (data != null) {
+                        uri = data.data
+                        cropImage()
+                    }
+                }
+                REQUEST_CODE_CROP_AVATAR -> {
+                    if (data != null) {
+                        val bundle = data.extras
+                        val bitmap = bundle!!.getParcelable<Bitmap>("data")
+                        val ivAvatar = findViewById<ImageView>(R.id.imageView)
+                        ivAvatar.setImageBitmap(bitmap)
+                    }
+                }
             }
         }
     }
@@ -110,7 +119,7 @@ class MainActivity : AppCompatActivity() {
 
         val imgOptions = arrayOf<CharSequence>("Take Photo", "Select from Gallery")
 
-        val builder =  AlertDialog.Builder(this);
+        val builder = AlertDialog.Builder(this);
         builder.setTitle("Choose Image Options");
         //DialogInterface dialogInterface, int i)
         builder.setItems(imgOptions) { p0, i ->
@@ -126,9 +135,13 @@ class MainActivity : AppCompatActivity() {
                         "tmp_" + System.currentTimeMillis().toString() + ".jpg"
                     )
 
-                    var uri : Uri? = null
+                    var uri: Uri? = null
                     if (Build.VERSION.SDK_INT > 23) {
-                        uri = FileProvider.getUriForFile(this,"com.example.homefolder.example.provider", file!!);
+                        uri = FileProvider.getUriForFile(
+                            this,
+                            "com.example.homefolder.example.provider",
+                            file!!
+                        );
                     } else {
                         uri = Uri.fromFile(file);
                     }
@@ -141,7 +154,8 @@ class MainActivity : AppCompatActivity() {
                     ex.printStackTrace();
                 }
             } else if (imgOptions[i].equals("Select from Gallery")) {
-                val  galIntent = Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                val galIntent =
+                    Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(Intent.createChooser(galIntent, "Open With"), GAL_CODE);
             }
         }
