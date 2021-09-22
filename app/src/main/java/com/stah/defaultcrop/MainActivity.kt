@@ -1,5 +1,6 @@
 package com.stah.defaultcrop
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Bitmap
@@ -10,12 +11,14 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import permissions.dispatcher.*
 import java.io.File
 
-
+@RuntimePermissions
 class MainActivity : AppCompatActivity() {
     private val GAL_CODE = 1
     private val CROP_CODE = 2
@@ -32,10 +35,47 @@ class MainActivity : AppCompatActivity() {
     var file: File? = null
     var uri: Uri? = null
 
-    private fun openCamera() {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        // 自動生成された権限ハンドリング用のコードに処理を委譲するための extension function を呼び出す。
+        onRequestPermissionsResult(requestCode, grantResults)
+    }
+
+    private fun onShowCameraButtonClick() {
+
+        openCameraWithPermissionCheck()
+    }
+
+    @OnShowRationale(Manifest.permission.CAMERA)
+    fun showRationaleForCamera(request: PermissionRequest) {
+        showRationaleDialog(request)
+        //Toast.makeText(this, "permission_camera_rationale", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showRationaleDialog(request: PermissionRequest) {
+        AlertDialog.Builder(this)
+            .setPositiveButton("許可") { _, _ -> request.proceed() }
+            .setNegativeButton("拒否") { _, _ -> request.cancel() }
+            .setCancelable(false)
+            .setMessage("カメラの権限が必要です")
+            .show()
+    }
+
+    @OnPermissionDenied(Manifest.permission.CAMERA)
+    fun onCameraDenied() {
+        Toast.makeText(this, "permission_camera_denied", Toast.LENGTH_SHORT).show()
+    }
+
+    @OnNeverAskAgain(Manifest.permission.CAMERA)
+    fun onCameraNeverAskAgain() {
+        Toast.makeText(this, "もう質問しない", Toast.LENGTH_SHORT).show()
+    }
+
+    @NeedsPermission(Manifest.permission.CAMERA)
+    fun openCamera() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         intent.putExtra("android.intent.extras.CAMERA_FACING", 1)
-        /*
+        /*テスト
         file = File(
             Environment.getExternalStorageDirectory(),
             "file" + System.currentTimeMillis().toString() + ".jpg"
@@ -73,7 +113,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.button).setOnClickListener {
-            openCamera()
+            onShowCameraButtonClick()
+        //openCamera()
         }
     }
 
