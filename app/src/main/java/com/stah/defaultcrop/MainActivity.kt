@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity() {
 
         intent.type = "image/*"
 
-        val list: List<ResolveInfo> = getPackageManager().queryIntentActivities(intent, 0)
+        val list: List<ResolveInfo> = packageManager.queryIntentActivities(intent, 0)
         val size = list.size
         if (size == 0) {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
