@@ -2,9 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.stah.defaultcrop">
 
+    <!--
+    <queries>
+        <intent>
+            <action android:name="com.android.camera.action.CROP" />
+        </intent>
+    </queries>
+    -->
+
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
 
     <application
         android:allowBackup="true"
@@ -13,22 +23,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DefaultCrop">
+
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.homefolder.example.provider"
+            android:authorities="com.stah.defaultcrop.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <!-- ressource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths">
-            </meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="com.android.camera.action.CROP" />
+
             </intent-filter>
 
         </activity>
