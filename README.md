@@ -1,1 +1,3 @@
-# DefaultCrop
+# DefaultCropを使用を試したもの。
+
+各デバイスにより動作が異なることがわかった。
